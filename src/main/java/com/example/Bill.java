@@ -26,7 +26,7 @@ public class Bill {
         for (Item item : items) {
             double itemSum = getSum(item);
 
-            double[] discountData = getDiscount(item, customer, itemSum);
+            double[] discountData = getDiscount(item, customer);
             double discountAmount = discountData[0];
             double usedBonus = discountData[1];
             int bonusEarned = (int) discountData[2];
@@ -76,36 +76,24 @@ public class Bill {
         return item.getQuantity() * item.getPrice();
     }
 
-    private double[] getDiscount(Item item, Customer customer, double itemSum) {
-        double discountAmount = 0;
-        double usedBonus = 0;
-        int bonusEarned = 0;
+    private double[] getDiscount(Item item, Customer customer) {
+        double quantity = item.getQuantity();
+        double price = item.getPrice();
 
-        switch (item.getGoods().getPriceCode()) {
-            case Goods.REGULAR:
-                if (item.getQuantity() > 2) discountAmount = itemSum * 0.03;
-                bonusEarned = (int) (itemSum * 0.05);
-                break;
-            case Goods.SPECIAL_OFFER:
-                if (item.getQuantity() > 10) discountAmount = itemSum * 0.005;
-                break;
-            case Goods.SALE:
-                if (item.getQuantity() > 3) discountAmount = itemSum * 0.01;
-                bonusEarned = (int) (itemSum * 0.01);
-                break;
-        }
+        double[] base = item.getGoods().getBonus(item.getQuantity(), item.getPrice());
+        double discountAmount = base[0];
+        int bonusEarned = (int) base[1];
 
+        double itemSum = quantity * price;
         double sumAfterDiscount = itemSum - discountAmount;
+
+        double usedBonus = 0;
         switch (item.getGoods().getPriceCode()) {
             case Goods.REGULAR:
-                if (item.getQuantity() > 5) {
-                    usedBonus = customer.useBonus((int) sumAfterDiscount);
-                }
+                if (item.getQuantity() > 5) usedBonus = customer.useBonus((int) sumAfterDiscount);
                 break;
             case Goods.SPECIAL_OFFER:
-                if (item.getQuantity() > 1) {
-                    usedBonus = customer.useBonus((int) sumAfterDiscount);
-                }
+                if (item.getQuantity() > 1) usedBonus = customer.useBonus((int) sumAfterDiscount);
                 break;
         }
 

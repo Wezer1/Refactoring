@@ -23,5 +23,11 @@ public class Item {
     public Goods getGoods() {
         return goods;
     }
+
+//    public double[] getBonus() {
+//        double itemSum = this.quantity * this.price;
+//        return this.goods.getBonus(itemSum, this.quantity);
+//    }
+
 }
 

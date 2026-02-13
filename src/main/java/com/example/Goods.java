@@ -25,5 +25,27 @@ public class Goods {
     public String getTitle() {
         return title;
     }
+
+    public double[] getBonus(int quantity, double price) {
+        double itemSum = quantity * price;
+        double discountAmount = 0;
+        int bonusEarned = 0;
+
+        switch (priceCode) {
+            case REGULAR:
+                if (quantity > 2) discountAmount = itemSum * 0.03;
+                bonusEarned = (int) (itemSum * 0.05);
+                break;
+            case SPECIAL_OFFER:
+                if (quantity > 10) discountAmount = itemSum * 0.005;
+                break;
+            case SALE:
+                if (quantity > 3) discountAmount = itemSum * 0.01;
+                bonusEarned = (int) (itemSum * 0.01);
+                break;
+        }
+
+        return new double[]{discountAmount, bonusEarned};
+    }
 }
 
