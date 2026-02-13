@@ -1,0 +1,12 @@
+CustomerName: Test
+CustomerBonus: 10
+GoodsTotalCount: 3
+# ID: NAME TYPE(REG/SAL/SPO)
+1: Cola REG
+2: Pepsi SAL
+3: Fanta SPO
+ItemsTotalCount: 3
+# ID: GID PRICE QTY
+1: 1 65 6
+2: 2 50 3
+3: 3 35 1
