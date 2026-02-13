@@ -18,72 +18,98 @@ public class Bill {
     }
 
     public String statement() {
-
         double totalAmount = 0;
         int totalBonus = 0;
 
-        String result = "Счет для " + customer.getName() + "\n";
-        result += "\tНазвание\tЦена\tКол-во\tСтоимость\tСкидка\tСумма\tБонус\n";
-        for (Item each : items) {
+        StringBuilder result = getHeader();
 
-            double thisAmount = 0;
-            double discount = 0;
-            int bonus = 0;
+        for (Item item : items) {
+            double itemSum = getSum(item);
 
-            double baseAmount = each.getQuantity() * each.getPrice();
-            switch (each.getGoods().getPriceCode()) {
+            double[] discountData = getDiscount(item, customer, itemSum);
+            double discountAmount = discountData[0];
+            double usedBonus = discountData[1];
+            int bonusEarned = (int) discountData[2];
 
-                case Goods.REGULAR:
-                    if (each.getQuantity() > 2) {
-                        discount = baseAmount * 0.03;
-                    }
-                    bonus = (int)(baseAmount * 0.05);
-                    break;
+            double finalAmount = itemSum - discountAmount - usedBonus;
 
-                case Goods.SPECIAL_OFFER:
-                    if (each.getQuantity() > 10) {
-                        discount = baseAmount * 0.005;
-                    }
-                    break;
+            result.append(formatItemLine(item, itemSum, discountAmount, finalAmount, bonusEarned));
 
-                case Goods.SALE:
-                    if (each.getQuantity() > 3) {
-                        discount = baseAmount * 0.01;
-                    }
-                    bonus = (int)(baseAmount * 0.01);
-                    break;
-            }
-            if (each.getGoods().getPriceCode() == Goods.REGULAR
-                    && each.getQuantity() > 5) {
-
-                discount += customer.useBonus((int) baseAmount);
-            }
-
-            if (each.getGoods().getPriceCode() == Goods.SPECIAL_OFFER
-                    && each.getQuantity() > 1) {
-
-                discount = customer.useBonus((int) baseAmount);
-            }
-            thisAmount = baseAmount - discount;
-
-            result += "\t" + each.getGoods().getTitle()
-                    + "\t" + each.getPrice()
-                    + "\t" + each.getQuantity()
-                    + "\t" + baseAmount
-                    + "\t" + discount
-                    + "\t" + thisAmount
-                    + "\t" + bonus + "\n";
-
-            totalAmount += thisAmount;
-            totalBonus += bonus;
+            totalAmount += finalAmount;
+            totalBonus += bonusEarned;
         }
-        result += "\nСумма счета составляет " + totalAmount + "\n";
-        result += "Вы заработали " + totalBonus + " бонусных баллов\n";
+
+        result.append(getFooter(totalAmount, totalBonus));
 
         customer.receiveBonus(totalBonus);
 
-        return result;
+        return result.toString();
     }
+
+    public StringBuilder getHeader() {
+        return new StringBuilder()
+                .append("Счет для ").append(customer.getName()).append("\n")
+                .append("\tНазвание\tЦена\tКол-во\tСтоимость\tСкидка\tСумма\tБонус\n");
+    }
+
+    public StringBuilder getFooter(double totalAmount, int totalBonus) {
+        return new StringBuilder()
+                .append("\nСумма счета составляет ").append(totalAmount).append("\n")
+                .append("Вы заработали ").append(totalBonus).append(" бонусных баллов\n");
+    }
+
+    public StringBuilder formatItemLine(Item item, double baseAmount, double discount, double finalAmount, int bonus) {
+        return new StringBuilder(String.format(
+                "\t%-10s\t%6.1f\t%6d\t%8.1f\t%6.1f\t%8.1f\t%5d\n",
+                item.getGoods().getTitle(),
+                item.getPrice(),
+                item.getQuantity(),
+                baseAmount,
+                discount,
+                finalAmount,
+                bonus
+        ));
+    }
+
+
+    private double getSum(Item item) {
+        return item.getQuantity() * item.getPrice();
+    }
+
+    private double[] getDiscount(Item item, Customer customer, double itemSum) {
+        double discountAmount = 0;
+        double usedBonus = 0;
+        int bonusEarned = 0;
+
+        switch (item.getGoods().getPriceCode()) {
+            case Goods.REGULAR:
+                if (item.getQuantity() > 2) discountAmount = itemSum * 0.03;
+                bonusEarned = (int) (itemSum * 0.05);
+                break;
+            case Goods.SPECIAL_OFFER:
+                if (item.getQuantity() > 10) discountAmount = itemSum * 0.005;
+                break;
+            case Goods.SALE:
+                if (item.getQuantity() > 3) discountAmount = itemSum * 0.01;
+                bonusEarned = (int) (itemSum * 0.01);
+                break;
+        }
+
+        double sumAfterDiscount = itemSum - discountAmount;
+        switch (item.getGoods().getPriceCode()) {
+            case Goods.REGULAR:
+                if (item.getQuantity() > 5) {
+                    usedBonus = customer.useBonus((int) sumAfterDiscount);
+                }
+                break;
+            case Goods.SPECIAL_OFFER:
+                if (item.getQuantity() > 1) {
+                    usedBonus = customer.useBonus((int) sumAfterDiscount);
+                }
+                break;
+        }
+
+        return new double[]{discountAmount, usedBonus, bonusEarned};
+    }
+
 }
-
-
