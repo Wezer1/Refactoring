@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.view.TxtView;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -7,12 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BillTest {
 
     @Test
-    void testRegularNoDiscount() { // REGULAR 1
+    void testRegularNoDiscount() {
         Customer c = new Customer("Alice", 0);
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 1, 100);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
@@ -21,12 +22,12 @@ public class BillTest {
     }
 
     @Test
-    void testRegularWithDiscountAndBonusUse() { // REGULAR 6
+    void testRegularWithDiscountAndBonusUse() {
         Customer c = new Customer("Bob", 10);
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 6, 100);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
@@ -40,7 +41,7 @@ public class BillTest {
         Goods g = new SaleGoods("Pepsi");
         Item i = new Item(g, 4, 50);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
@@ -55,7 +56,7 @@ public class BillTest {
         Item i = new Item(g, 11, 30);
         Item j = new Item(g, 2, 30);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         bill.addGoods(j);
         String result = bill.statement();
@@ -71,7 +72,7 @@ public class BillTest {
         Goods g2 = new SaleGoods("Pepsi");
         Goods g3 = new SpecialOfferGoods("Fanta");
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(new Item(g1, 3, 100));
         bill.addGoods(new Item(g2, 4, 50));
         bill.addGoods(new Item(g3, 2, 30));
@@ -87,7 +88,7 @@ public class BillTest {
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 3, 100);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
@@ -101,7 +102,7 @@ public class BillTest {
         Goods g = new SaleGoods("Pepsi");
         Item i = new Item(g, 2, 50);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
@@ -115,7 +116,7 @@ public class BillTest {
         Goods g = new SpecialOfferGoods("Fanta");
         Item i = new Item(g, 1, 30);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
@@ -129,7 +130,7 @@ public class BillTest {
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 1, 50);
 
-        Bill bill = new Bill(c);
+        Bill bill = new Bill(c, new TxtView());
         bill.addGoods(i);
         String result = bill.statement();
 
