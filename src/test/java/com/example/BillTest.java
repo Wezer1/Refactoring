@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class BillTest {
 
     @Test
-    void testRegularNoDiscount() { // кейс 1 (REGULAR 1)
+    void testRegularNoDiscount() { // REGULAR 1
         Customer c = new Customer("Alice", 0);
-        Goods g = new Goods("Cola", Goods.REGULAR);
+        Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 1, 100);
 
         Bill bill = new Bill(c);
@@ -21,10 +21,10 @@ public class BillTest {
     }
 
     @Test
-    void testRegularWithDiscountAndBonusUse() { // кейс 3 (REGULAR 6)
+    void testRegularWithDiscountAndBonusUse() { // REGULAR 6
         Customer c = new Customer("Bob", 10);
-        Goods g = new Goods("Cola", Goods.REGULAR);
-        Item i = new Item(g, 6, 100); // >5, скидка + использование бонуса
+        Goods g = new RegularGoods("Cola");
+        Item i = new Item(g, 6, 100);
 
         Bill bill = new Bill(c);
         bill.addGoods(i);
@@ -37,7 +37,7 @@ public class BillTest {
     @Test
     void testSaleDiscountAndBonus() {
         Customer c = new Customer("Charlie", 0);
-        Goods g = new Goods("Pepsi", Goods.SALE);
+        Goods g = new SaleGoods("Pepsi");
         Item i = new Item(g, 4, 50);
 
         Bill bill = new Bill(c);
@@ -51,7 +51,7 @@ public class BillTest {
     @Test
     void testSpecialOfferDiscountAndBonus() {
         Customer c = new Customer("Dana", 20);
-        Goods g = new Goods("Fanta", Goods.SPECIAL_OFFER);
+        Goods g = new SpecialOfferGoods("Fanta");
         Item i = new Item(g, 11, 30);
         Item j = new Item(g, 2, 30);
 
@@ -67,9 +67,9 @@ public class BillTest {
     @Test
     void testMixedItems() {
         Customer c = new Customer("Eve", 15);
-        Goods g1 = new Goods("Cola", Goods.REGULAR);
-        Goods g2 = new Goods("Pepsi", Goods.SALE);
-        Goods g3 = new Goods("Fanta", Goods.SPECIAL_OFFER);
+        Goods g1 = new RegularGoods("Cola");
+        Goods g2 = new SaleGoods("Pepsi");
+        Goods g3 = new SpecialOfferGoods("Fanta");
 
         Bill bill = new Bill(c);
         bill.addGoods(new Item(g1, 3, 100));
@@ -81,11 +81,10 @@ public class BillTest {
         assertTrue(result.contains("Вы заработали"));
     }
 
-
     @Test
     void testRegularWithDiscountOnly() {
         Customer c = new Customer("Frank", 0);
-        Goods g = new Goods("Cola", Goods.REGULAR);
+        Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 3, 100);
 
         Bill bill = new Bill(c);
@@ -99,7 +98,7 @@ public class BillTest {
     @Test
     void testSaleWithBonusOnly() {
         Customer c = new Customer("Grace", 0);
-        Goods g = new Goods("Pepsi", Goods.SALE);
+        Goods g = new SaleGoods("Pepsi");
         Item i = new Item(g, 2, 50);
 
         Bill bill = new Bill(c);
@@ -113,7 +112,7 @@ public class BillTest {
     @Test
     void testSpecialOfferNoDiscountNoBonus() {
         Customer c = new Customer("Hank", 0);
-        Goods g = new Goods("Fanta", Goods.SPECIAL_OFFER);
+        Goods g = new SpecialOfferGoods("Fanta");
         Item i = new Item(g, 1, 30);
 
         Bill bill = new Bill(c);
@@ -127,7 +126,7 @@ public class BillTest {
     @Test
     void testRegularOneItemBoundary() {
         Customer c = new Customer("Ivy", 5);
-        Goods g = new Goods("Cola", Goods.REGULAR);
+        Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 1, 50);
 
         Bill bill = new Bill(c);
@@ -137,4 +136,3 @@ public class BillTest {
         assertTrue(result.matches("(?s).*Сумма счета составляет 50\\.0.*Вы заработали 2 бонусных баллов.*"));
     }
 }
-
