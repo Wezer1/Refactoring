@@ -20,7 +20,6 @@ public class Program {
         String[] result = line.split(":");
         String name = result[1].trim();
 
-        // read bonus
         line = reader.readLine();
         result = line.split(":");
         int bonus = Integer.parseInt(result[1].trim());
@@ -28,7 +27,6 @@ public class Program {
         Customer customer = new Customer(name, bonus);
         Bill b = new Bill(customer);
 
-        // read goods count
         line = reader.readLine();
         result = line.split(":");
         int goodsQty = Integer.parseInt(result[1].trim());
@@ -37,7 +35,6 @@ public class Program {
 
         for (int i = 0; i < g.length; i++) {
 
-            // skip comments
             do {
                 line = reader.readLine();
             } while (line.startsWith("#"));
@@ -46,24 +43,22 @@ public class Program {
             result = result[1].trim().split("\\s+");
 
             String type = result[1].trim();
-            int t = 0;
 
             switch (type) {
                 case "REG":
-                    t = Goods.REGULAR;
+                    g[i] = new RegularGoods(result[0]);
                     break;
                 case "SAL":
-                    t = Goods.SALE;
+                    g[i] = new SaleGoods(result[0]);
                     break;
                 case "SPO":
-                    t = Goods.SPECIAL_OFFER;
+                    g[i] = new SpecialOfferGoods(result[0]);
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown goods type");
             }
-
-            g[i] = new Goods(result[0], t);
         }
 
-        // skip comments
         do {
             line = reader.readLine();
         } while (line.startsWith("#"));
@@ -73,7 +68,6 @@ public class Program {
 
         for (int i = 0; i < itemsQty; i++) {
 
-            // skip comments
             do {
                 line = reader.readLine();
             } while (line.startsWith("#"));
@@ -90,7 +84,6 @@ public class Program {
 
         reader.close();
 
-        String bill = b.statement();
-        System.out.println(bill);
+        System.out.println(b.statement());
     }
 }

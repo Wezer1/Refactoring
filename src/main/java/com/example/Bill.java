@@ -77,27 +77,20 @@ public class Bill {
     }
 
     private double[] getDiscount(Item item, Customer customer) {
+
         double quantity = item.getQuantity();
         double price = item.getPrice();
 
-        double[] base = item.getGoods().getBonus(item.getQuantity(), item.getPrice());
+        double[] base = item.getGoods().getBonus((int) quantity, price);
         double discountAmount = base[0];
         int bonusEarned = (int) base[1];
 
         double itemSum = quantity * price;
         double sumAfterDiscount = itemSum - discountAmount;
 
-        double usedBonus = 0;
-        switch (item.getGoods().getPriceCode()) {
-            case Goods.REGULAR:
-                if (item.getQuantity() > 5) usedBonus = customer.useBonus((int) sumAfterDiscount);
-                break;
-            case Goods.SPECIAL_OFFER:
-                if (item.getQuantity() > 1) usedBonus = customer.useBonus((int) sumAfterDiscount);
-                break;
-        }
+        double usedBonus = item.getGoods()
+                .getUsedBonus((int) quantity, sumAfterDiscount, customer);
 
         return new double[]{discountAmount, usedBonus, bonusEarned};
     }
-
 }
