@@ -1,8 +1,17 @@
 package com.example;
 
+import com.example.DTO.Customer;
+import com.example.DTO.Goods;
+import com.example.DTO.Item;
+import com.example.goods.RegularGoods;
+import com.example.goods.SaleGoods;
+import com.example.goods.SpecialOfferGoods;
 import com.example.view.TxtView;
 import org.junit.jupiter.api.Test;
 import com.example.generator.BillGenerator;
+
+import java.io.BufferedReader;
+import java.io.StringReader;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -152,5 +161,29 @@ public class BillTest {
         assertTrue(result.matches(
                 "(?s).*Сумма счета составляет 50\\.0.*Вы заработали 2 бонусных баллов.*"
         ));
+    }
+
+    @Test
+    void testParsing() throws Exception {
+
+        String yaml =
+                "Customer: Alice\n" +
+                        "Bonus: 0\n" +
+                        "Goods: 1\n" +
+                        "Good: Cola REG\n" +
+                        "Items: 1\n" +
+                        "Item: 1 100 1\n";
+
+        BufferedReader reader =
+                new BufferedReader(new StringReader(yaml));
+
+        Bill bill = Main.createBill(reader);
+
+        BillGenerator generator =
+                new BillGenerator(bill, new TxtView());
+
+        String result = generator.generate();
+
+        assertTrue(result.contains("Alice"));
     }
 }

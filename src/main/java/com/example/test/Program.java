@@ -1,7 +1,16 @@
 package com.example.test;
 
 import com.example.*;
+import com.example.DTO.Customer;
+import com.example.DTO.Goods;
+import com.example.DTO.Item;
+import com.example.factory.BillFactory;
+import com.example.formatFile.ContentFile;
+import com.example.formatFile.YamlContentFile;
 import com.example.generator.BillGenerator;
+import com.example.goods.RegularGoods;
+import com.example.goods.SaleGoods;
+import com.example.goods.SpecialOfferGoods;
 import com.example.view.IView;
 import com.example.view.TxtView;
 
@@ -19,79 +28,15 @@ public class Program {
             filename = args[0];
         }
 
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        BufferedReader reader =
+                new BufferedReader(new FileReader(filename));
 
-        String line = reader.readLine();
-        String[] result = line.split(":");
-        String name = result[1].trim();
+        ContentFile file = new YamlContentFile();
 
-        line = reader.readLine();
-        result = line.split(":");
-        int bonus = Integer.parseInt(result[1].trim());
+        Bill bill = BillFactory.create(file, reader);
 
-        Customer customer = new Customer(name, bonus);
-
-        Bill bill = new Bill(customer);
-
-        line = reader.readLine();
-        result = line.split(":");
-        int goodsQty = Integer.parseInt(result[1].trim());
-
-        Goods[] g = new Goods[goodsQty];
-
-        for (int i = 0; i < g.length; i++) {
-
-            do {
-                line = reader.readLine();
-            } while (line.startsWith("#"));
-
-            result = line.split(":");
-            result = result[1].trim().split("\\s+");
-
-            String type = result[1].trim();
-
-            switch (type) {
-                case "REG":
-                    g[i] = new RegularGoods(result[0]);
-                    break;
-                case "SAL":
-                    g[i] = new SaleGoods(result[0]);
-                    break;
-                case "SPO":
-                    g[i] = new SpecialOfferGoods(result[0]);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown goods type");
-            }
-        }
-
-        do {
-            line = reader.readLine();
-        } while (line.startsWith("#"));
-
-        result = line.split(":");
-        int itemsQty = Integer.parseInt(result[1].trim());
-
-        for (int i = 0; i < itemsQty; i++) {
-
-            do {
-                line = reader.readLine();
-            } while (line.startsWith("#"));
-
-            result = line.split(":");
-            result = result[1].trim().split("\\s+");
-
-            int gid = Integer.parseInt(result[0].trim());
-            double price = Double.parseDouble(result[1].trim());
-            int qty = Integer.parseInt(result[2].trim());
-
-            bill.addGoods(new Item(g[gid - 1], qty, price));
-        }
-
-        reader.close();
-
-        IView view = new TxtView();
-        BillGenerator generator = new BillGenerator(bill, view);
+        BillGenerator generator =
+                new BillGenerator(bill, new TxtView());
 
         System.out.println(generator.generate());
     }

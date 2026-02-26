@@ -1,6 +1,8 @@
 package com.example;
 
 import com.example.DTO.BillSummary;
+import com.example.DTO.Customer;
+import com.example.DTO.Item;
 import com.example.DTO.ItemSummary;
 
 import java.util.ArrayList;

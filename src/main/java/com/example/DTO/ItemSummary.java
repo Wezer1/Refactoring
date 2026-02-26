@@ -1,7 +1,5 @@
 package com.example.DTO;
 
-import com.example.Item;
-
 public class ItemSummary {
 
     private Item item;

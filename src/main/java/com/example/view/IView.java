@@ -1,7 +1,7 @@
 package com.example.view;
 
-import com.example.Customer;
-import com.example.Item;
+import com.example.DTO.Customer;
+import com.example.DTO.Item;
 
 public interface IView {
 
