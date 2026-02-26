@@ -1,8 +1,11 @@
-package com.example;
+package com.example.goods;
 
-public class RegularGoods extends Goods {
+import com.example.DTO.Customer;
+import com.example.DTO.Goods;
 
-    public RegularGoods(String title) {
+public class SpecialOfferGoods extends Goods {
+
+    public SpecialOfferGoods(String title) {
         super(title);
     }
 
@@ -11,18 +14,16 @@ public class RegularGoods extends Goods {
         double itemSum = quantity * price;
         double discountAmount = 0;
 
-        if (quantity > 2) {
-            discountAmount = itemSum * 0.03;
+        if (quantity > 10) {
+            discountAmount = itemSum * 0.005;
         }
 
-        int bonusEarned = (int) (itemSum * 0.05);
-
-        return new double[]{discountAmount, bonusEarned};
+        return new double[]{discountAmount, 0};
     }
 
     @Override
     public double getUsedBonus(int quantity, double sumAfterDiscount, Customer customer) {
-        if (quantity > 5) {
+        if (quantity > 1) {
             return customer.useBonus((int) sumAfterDiscount);
         }
         return 0;

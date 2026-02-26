@@ -1,4 +1,7 @@
-package com.example;
+package com.example.goods;
+
+import com.example.DTO.Customer;
+import com.example.DTO.Goods;
 
 public class SaleGoods extends Goods {
 
