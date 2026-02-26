@@ -1,5 +1,7 @@
 package com.example;
 
+import com.example.view.IView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,9 +9,11 @@ public class Bill {
 
     private List<Item> items;
     private Customer customer;
+    private IView view;
 
-    public Bill(Customer customer) {
+    public Bill(Customer customer, IView view) {
         this.customer = customer;
+        this.view = view;
         this.items = new ArrayList<>();
     }
 
@@ -21,9 +25,10 @@ public class Bill {
         double totalAmount = 0;
         int totalBonus = 0;
 
-        StringBuilder result = getHeader();
+        StringBuilder result = view.getHeader(customer);
 
         for (Item item : items) {
+
             double itemSum = getSum(item);
 
             double[] discountData = getDiscount(item, customer);
@@ -33,51 +38,30 @@ public class Bill {
 
             double finalAmount = itemSum - discountAmount - usedBonus;
 
-            result.append(formatItemLine(item, itemSum, discountAmount, finalAmount, bonusEarned));
+            result.append(view.getItemString(
+                    item,
+                    itemSum,
+                    discountAmount,
+                    finalAmount,
+                    bonusEarned
+            ));
 
             totalAmount += finalAmount;
             totalBonus += bonusEarned;
         }
 
-        result.append(getFooter(totalAmount, totalBonus));
+        result.append(view.getFooter(totalAmount, totalBonus));
 
         customer.receiveBonus(totalBonus);
 
         return result.toString();
     }
 
-    public StringBuilder getHeader() {
-        return new StringBuilder()
-                .append("Счет для ").append(customer.getName()).append("\n")
-                .append("\tНазвание\tЦена\tКол-во\tСтоимость\tСкидка\tСумма\tБонус\n");
-    }
-
-    public StringBuilder getFooter(double totalAmount, int totalBonus) {
-        return new StringBuilder()
-                .append("\nСумма счета составляет ").append(totalAmount).append("\n")
-                .append("Вы заработали ").append(totalBonus).append(" бонусных баллов\n");
-    }
-
-    public StringBuilder formatItemLine(Item item, double baseAmount, double discount, double finalAmount, int bonus) {
-        return new StringBuilder(String.format(
-                "\t%-10s\t%6.1f\t%6d\t%8.1f\t%6.1f\t%8.1f\t%5d\n",
-                item.getGoods().getTitle(),
-                item.getPrice(),
-                item.getQuantity(),
-                baseAmount,
-                discount,
-                finalAmount,
-                bonus
-        ));
-    }
-
-
     private double getSum(Item item) {
         return item.getQuantity() * item.getPrice();
     }
 
     private double[] getDiscount(Item item, Customer customer) {
-
         double quantity = item.getQuantity();
         double price = item.getPrice();
 

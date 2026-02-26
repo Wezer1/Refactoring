@@ -1,4 +1,8 @@
-package com.example;
+package com.example.test;
+
+import com.example.*;
+import com.example.view.IView;
+import com.example.view.TxtView;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -25,7 +29,10 @@ public class Program {
         int bonus = Integer.parseInt(result[1].trim());
 
         Customer customer = new Customer(name, bonus);
-        Bill b = new Bill(customer);
+
+        // ⬇ внедрение зависимости
+        IView view = new TxtView();
+        Bill b = new Bill(customer, view);
 
         line = reader.readLine();
         result = line.split(":");
