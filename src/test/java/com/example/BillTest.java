@@ -2,10 +2,16 @@ package com.example;
 
 import com.example.view.TxtView;
 import org.junit.jupiter.api.Test;
+import com.example.generator.BillGenerator;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BillTest {
+
+    private String generateResult(Bill bill) {
+        BillGenerator generator = new BillGenerator(bill, new TxtView());
+        return generator.generate();
+    }
 
     @Test
     void testRegularNoDiscount() {
@@ -13,9 +19,10 @@ public class BillTest {
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 1, 100);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет 100.0"));
         assertTrue(result.contains("Вы заработали 5 бонусных баллов"));
@@ -27,9 +34,10 @@ public class BillTest {
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 6, 100);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет"));
         assertTrue(result.contains("Вы заработали"));
@@ -41,9 +49,10 @@ public class BillTest {
         Goods g = new SaleGoods("Pepsi");
         Item i = new Item(g, 4, 50);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет"));
         assertTrue(result.contains("Вы заработали"));
@@ -56,10 +65,11 @@ public class BillTest {
         Item i = new Item(g, 11, 30);
         Item j = new Item(g, 2, 30);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
         bill.addGoods(j);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет"));
         assertTrue(result.contains("Вы заработали"));
@@ -72,12 +82,13 @@ public class BillTest {
         Goods g2 = new SaleGoods("Pepsi");
         Goods g3 = new SpecialOfferGoods("Fanta");
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(new Item(g1, 3, 100));
         bill.addGoods(new Item(g2, 4, 50));
         bill.addGoods(new Item(g3, 2, 30));
 
-        String result = bill.statement();
+        String result = generateResult(bill);
+
         assertTrue(result.contains("Сумма счета составляет"));
         assertTrue(result.contains("Вы заработали"));
     }
@@ -88,9 +99,10 @@ public class BillTest {
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 3, 100);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет"));
         assertTrue(result.contains("Вы заработали"));
@@ -102,9 +114,10 @@ public class BillTest {
         Goods g = new SaleGoods("Pepsi");
         Item i = new Item(g, 2, 50);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет"));
         assertTrue(result.contains("Вы заработали"));
@@ -116,9 +129,10 @@ public class BillTest {
         Goods g = new SpecialOfferGoods("Fanta");
         Item i = new Item(g, 1, 30);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
+
+        String result = generateResult(bill);
 
         assertTrue(result.contains("Сумма счета составляет 30.0"));
         assertTrue(result.contains("Вы заработали 0 бонусных баллов"));
@@ -130,10 +144,13 @@ public class BillTest {
         Goods g = new RegularGoods("Cola");
         Item i = new Item(g, 1, 50);
 
-        Bill bill = new Bill(c, new TxtView());
+        Bill bill = new Bill(c);
         bill.addGoods(i);
-        String result = bill.statement();
 
-        assertTrue(result.matches("(?s).*Сумма счета составляет 50\\.0.*Вы заработали 2 бонусных баллов.*"));
+        String result = generateResult(bill);
+
+        assertTrue(result.matches(
+                "(?s).*Сумма счета составляет 50\\.0.*Вы заработали 2 бонусных баллов.*"
+        ));
     }
 }
