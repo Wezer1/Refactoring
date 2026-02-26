@@ -1,6 +1,7 @@
 package com.example.test;
 
 import com.example.*;
+import com.example.generator.BillGenerator;
 import com.example.view.HtmlView;
 import com.example.view.IView;
 
@@ -31,9 +32,7 @@ public class ProgramHtml {
 
         Customer customer = new Customer(name, bonus);
 
-        // ⬇ HTML-представление
-        IView view = new HtmlView();
-        Bill bill = new Bill(customer, view);
+        Bill bill = new Bill(customer);
 
         line = reader.readLine();
         result = line.split(":");
@@ -92,12 +91,13 @@ public class ProgramHtml {
 
         reader.close();
 
-        // Генерируем HTML
+        IView view = new HtmlView();
+        BillGenerator generator = new BillGenerator(bill, view);
+
         String htmlContent = "<!DOCTYPE html>\n<html>\n<head><meta charset='UTF-8'><title>Счет</title></head>\n<body>\n"
-                + bill.statement()
+                + generator.generate()
                 + "\n</body>\n</html>";
 
-        // Записываем в файл
         try (FileWriter writer = new FileWriter("bill.html")) {
             writer.write(htmlContent);
         }

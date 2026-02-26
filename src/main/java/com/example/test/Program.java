@@ -1,6 +1,7 @@
 package com.example.test;
 
 import com.example.*;
+import com.example.generator.BillGenerator;
 import com.example.view.IView;
 import com.example.view.TxtView;
 
@@ -30,9 +31,7 @@ public class Program {
 
         Customer customer = new Customer(name, bonus);
 
-        // ⬇ внедрение зависимости
-        IView view = new TxtView();
-        Bill b = new Bill(customer, view);
+        Bill bill = new Bill(customer);
 
         line = reader.readLine();
         result = line.split(":");
@@ -86,11 +85,14 @@ public class Program {
             double price = Double.parseDouble(result[1].trim());
             int qty = Integer.parseInt(result[2].trim());
 
-            b.addGoods(new Item(g[gid - 1], qty, price));
+            bill.addGoods(new Item(g[gid - 1], qty, price));
         }
 
         reader.close();
 
-        System.out.println(b.statement());
+        IView view = new TxtView();
+        BillGenerator generator = new BillGenerator(bill, view);
+
+        System.out.println(generator.generate());
     }
 }
