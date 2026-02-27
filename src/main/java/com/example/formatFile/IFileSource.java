@@ -7,7 +7,7 @@ import com.example.DTO.Item;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public interface ContentFile {
+public interface IFileSource {
 
     void setSource(BufferedReader reader) throws IOException;
 
