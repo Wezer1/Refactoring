@@ -1,14 +1,12 @@
 package com.example.formatFile;
 
-import com.example.DTO.Customer;
-import com.example.DTO.Goods;
-import com.example.DTO.Item;
+import com.example.DTO.*;
 import com.example.factory.GoodsFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class YamlContentFile implements ContentFile {
+public class YamlFileSource implements IFileSource {
 
     private BufferedReader reader;
 

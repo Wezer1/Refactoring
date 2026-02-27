@@ -3,14 +3,14 @@ package com.example.factory;
 import com.example.Bill;
 import com.example.DTO.Customer;
 import com.example.DTO.Goods;
-import com.example.formatFile.ContentFile;
+import com.example.formatFile.IFileSource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
 public class BillFactory {
 
-    public static Bill create(ContentFile contentFile,
+    public static Bill create(IFileSource contentFile,
                               BufferedReader reader)
             throws IOException {
 

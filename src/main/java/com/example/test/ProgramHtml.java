@@ -1,22 +1,14 @@
 package com.example.test;
 
 import com.example.*;
-import com.example.DTO.Customer;
-import com.example.DTO.Goods;
-import com.example.DTO.Item;
 import com.example.factory.BillFactory;
-import com.example.formatFile.ContentFile;
-import com.example.formatFile.YamlContentFile;
+import com.example.formatFile.IFileSource;
+import com.example.formatFile.YamlFileSource;
 import com.example.generator.BillGenerator;
-import com.example.goods.RegularGoods;
-import com.example.goods.SaleGoods;
-import com.example.goods.SpecialOfferGoods;
 import com.example.view.HtmlView;
-import com.example.view.IView;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class ProgramHtml {
@@ -35,7 +27,7 @@ public class ProgramHtml {
                 new BufferedReader(new FileReader(filename));
 
         // 🔹 2. Парсер конкретного формата
-        ContentFile file = new YamlContentFile();
+        IFileSource file = new YamlFileSource();
         Bill bill = BillFactory.create(file, reader);
 
         BillGenerator generator =
