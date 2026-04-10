@@ -1,7 +1,11 @@
 package com.example.formatFile;
 
-import com.example.DTO.*;
-import com.example.factory.GoodsFactory;
+import com.example.DTO.Customer;
+import com.example.DTO.Goods;
+import com.example.DTO.Item;
+import com.example.bonusStrategy.PercentFromItemSumBonusStrategy;
+import com.example.discountStrategy.*;
+import com.example.formatFile.IFileSource;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +21,6 @@ public class YamlFileSource implements IFileSource {
 
     @Override
     public Customer getCustomer() throws IOException {
-
         String line = reader.readLine();
         String name = line.split(":")[1].trim();
 
@@ -39,12 +42,33 @@ public class YamlFileSource implements IFileSource {
         String line;
         do {
             line = reader.readLine();
-        } while (line.startsWith("#"));
+            if (line == null) return null;
+        } while (line.trim().isEmpty() || line.startsWith("#"));
 
-        String[] data =
-                line.split(":")[1].trim().split("\\s+");
+        String[] data = line.split(":")[1].trim().split("\\s+");
 
-        return GoodsFactory.create(data[0], data[1]);
+        String title = data[0];
+        String type = data[1].toUpperCase();
+
+        // Создаём Goods напрямую с нужными стратегиями
+        return switch (type) {
+            case "REG" -> new Goods(
+                    title,
+                    new QuantityConditionalBonusStrategy(5, 5),
+                    new QuantityThresholdPercentDiscountStrategy(2, 3)
+            );
+            case "SAL" -> new Goods(
+                    title,
+                    new PercentFromItemSumBonusStrategy(1),
+                    new QuantityThresholdPercentDiscountStrategy(3, 1)
+            );
+            case "SPO" -> new Goods(
+                    title,
+                    new QuantityConditionalBonusStrategy(1, 0), // бонусов нет, можно списывать если >1
+                    new QuantityThresholdPercentDiscountStrategy(10, 0.5)
+            );
+            default -> throw new IllegalArgumentException("Unknown goods type: " + type);
+        };
     }
 
     @Override
@@ -60,30 +84,20 @@ public class YamlFileSource implements IFileSource {
 
         while (true) {
             line = reader.readLine();
-
-            if (line == null) {
-                return null;
-            }
+            if (line == null) return null;
 
             line = line.trim();
-
-            if (line.isEmpty() || line.startsWith("#")) {
-                continue;
-            }
-
-            if (!line.contains(":")) {
+            if (line.isEmpty() || line.startsWith("#") || !line.contains(":")) {
                 continue;
             }
 
             String right = line.split(":")[1].trim();
-
             if (right.matches("\\d+.*")) {
                 break;
             }
         }
 
-        String[] data =
-                line.split(":")[1].trim().split("\\s+");
+        String[] data = line.split(":")[1].trim().split("\\s+");
 
         int gid = Integer.parseInt(data[0]);
         double price = Double.parseDouble(data[1]);

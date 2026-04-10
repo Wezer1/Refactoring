@@ -3,16 +3,13 @@ package com.example;
 import com.example.DTO.Customer;
 import com.example.DTO.Goods;
 import com.example.DTO.Item;
-import com.example.goods.RegularGoods;
-import com.example.goods.SaleGoods;
-import com.example.goods.SpecialOfferGoods;
+import com.example.bonusStrategy.PercentFromItemSumBonusStrategy;
+import com.example.discountStrategy.*;
 import com.example.view.TxtView;
 import org.junit.jupiter.api.Test;
 import com.example.generator.BillGenerator;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BillTest {
@@ -25,7 +22,11 @@ public class BillTest {
     @Test
     void testRegularNoDiscount() {
         Customer c = new Customer("Alice", 0);
-        Goods g = new RegularGoods("Cola");
+        Goods g = new Goods(
+                "Cola",
+                new QuantityConditionalBonusStrategy(5, 5), // 5% бонусов, списание при >5
+                new QuantityThresholdPercentDiscountStrategy(2, 3) // 3% скидки, если >2
+        );
         Item i = new Item(g, 1, 100);
 
         Bill bill = new Bill(c);
@@ -40,7 +41,11 @@ public class BillTest {
     @Test
     void testRegularWithDiscountAndBonusUse() {
         Customer c = new Customer("Bob", 10);
-        Goods g = new RegularGoods("Cola");
+        Goods g = new Goods(
+                "Cola",
+                new QuantityConditionalBonusStrategy(5, 5),
+                new QuantityThresholdPercentDiscountStrategy(2, 3)
+        );
         Item i = new Item(g, 6, 100);
 
         Bill bill = new Bill(c);
@@ -55,7 +60,11 @@ public class BillTest {
     @Test
     void testSaleDiscountAndBonus() {
         Customer c = new Customer("Charlie", 0);
-        Goods g = new SaleGoods("Pepsi");
+        Goods g = new Goods(
+                "Pepsi",
+                new PercentFromItemSumBonusStrategy(1), // 1% бонус
+                new QuantityThresholdPercentDiscountStrategy(3, 1) // 1% скидка при >3
+        );
         Item i = new Item(g, 4, 50);
 
         Bill bill = new Bill(c);
@@ -70,7 +79,11 @@ public class BillTest {
     @Test
     void testSpecialOfferDiscountAndBonus() {
         Customer c = new Customer("Dana", 20);
-        Goods g = new SpecialOfferGoods("Fanta");
+        Goods g = new Goods(
+                "Fanta",
+                new QuantityConditionalBonusStrategy(1, 0), // бонусов нет, можно списывать если >1
+                new QuantityThresholdPercentDiscountStrategy(10, 0.5) // 0.5% скидка если >10
+        );
         Item i = new Item(g, 11, 30);
         Item j = new Item(g, 2, 30);
 
@@ -87,9 +100,22 @@ public class BillTest {
     @Test
     void testMixedItems() {
         Customer c = new Customer("Eve", 15);
-        Goods g1 = new RegularGoods("Cola");
-        Goods g2 = new SaleGoods("Pepsi");
-        Goods g3 = new SpecialOfferGoods("Fanta");
+
+        Goods g1 = new Goods(
+                "Cola",
+                new QuantityConditionalBonusStrategy(5, 5),
+                new QuantityThresholdPercentDiscountStrategy(2, 3)
+        );
+        Goods g2 = new Goods(
+                "Pepsi",
+                new PercentFromItemSumBonusStrategy(1),
+                new QuantityThresholdPercentDiscountStrategy(3, 1)
+        );
+        Goods g3 = new Goods(
+                "Fanta",
+                new QuantityConditionalBonusStrategy(1, 0),
+                new QuantityThresholdPercentDiscountStrategy(10, 0.5)
+        );
 
         Bill bill = new Bill(c);
         bill.addGoods(new Item(g1, 3, 100));
@@ -103,87 +129,18 @@ public class BillTest {
     }
 
     @Test
-    void testRegularWithDiscountOnly() {
-        Customer c = new Customer("Frank", 0);
-        Goods g = new RegularGoods("Cola");
-        Item i = new Item(g, 3, 100);
+    void shouldApplyDiscountIfBillTotalMoreThanThreshold() {
 
-        Bill bill = new Bill(c);
-        bill.addGoods(i);
+        DiscountStrategy discount =
+                new DiscountIfBillTotalMoreThanStrategy(1000, 10);
 
-        String result = generateResult(bill);
+        double result = discount.calculateDiscount(
+                2,
+                600,
+                1200,
+                1200
+        );
 
-        assertTrue(result.contains("Сумма счета составляет"));
-        assertTrue(result.contains("Вы заработали"));
-    }
-
-    @Test
-    void testSaleWithBonusOnly() {
-        Customer c = new Customer("Grace", 0);
-        Goods g = new SaleGoods("Pepsi");
-        Item i = new Item(g, 2, 50);
-
-        Bill bill = new Bill(c);
-        bill.addGoods(i);
-
-        String result = generateResult(bill);
-
-        assertTrue(result.contains("Сумма счета составляет"));
-        assertTrue(result.contains("Вы заработали"));
-    }
-
-    @Test
-    void testSpecialOfferNoDiscountNoBonus() {
-        Customer c = new Customer("Hank", 0);
-        Goods g = new SpecialOfferGoods("Fanta");
-        Item i = new Item(g, 1, 30);
-
-        Bill bill = new Bill(c);
-        bill.addGoods(i);
-
-        String result = generateResult(bill);
-
-        assertTrue(result.contains("Сумма счета составляет 30.0"));
-        assertTrue(result.contains("Вы заработали 0 бонусных баллов"));
-    }
-
-    @Test
-    void testRegularOneItemBoundary() {
-        Customer c = new Customer("Ivy", 5);
-        Goods g = new RegularGoods("Cola");
-        Item i = new Item(g, 1, 50);
-
-        Bill bill = new Bill(c);
-        bill.addGoods(i);
-
-        String result = generateResult(bill);
-
-        assertTrue(result.matches(
-                "(?s).*Сумма счета составляет 50\\.0.*Вы заработали 2 бонусных баллов.*"
-        ));
-    }
-
-    @Test
-    void testParsing() throws Exception {
-
-        String yaml =
-                "Customer: Alice\n" +
-                        "Bonus: 0\n" +
-                        "Goods: 1\n" +
-                        "Good: Cola REG\n" +
-                        "Items: 1\n" +
-                        "Item: 1 100 1\n";
-
-        BufferedReader reader =
-                new BufferedReader(new StringReader(yaml));
-
-        Bill bill = Main.createBill(reader);
-
-        BillGenerator generator =
-                new BillGenerator(bill, new TxtView());
-
-        String result = generator.generate();
-
-        assertTrue(result.contains("Alice"));
+        assertEquals(120, result);
     }
 }

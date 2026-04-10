@@ -1,22 +1,33 @@
 package com.example.DTO;
 
+import com.example.bonusStrategy.BonusStrategy;
+import com.example.discountStrategy.DiscountStrategy;
+
 public class Goods {
 
     protected String title;
 
-    public Goods(String title) {
+    private BonusStrategy bonusStrategy;
+    private DiscountStrategy discountStrategy;
+
+    public Goods(String title,
+                 BonusStrategy bonusStrategy,
+                 DiscountStrategy discountStrategy) {
+
         this.title = title;
+        this.bonusStrategy = bonusStrategy;
+        this.discountStrategy = discountStrategy;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public double[] getBonus(int quantity, double price) {
-        return new double[]{0, 0};
+    public BonusStrategy getBonusStrategy() {
+        return bonusStrategy;
     }
 
-    public double getUsedBonus(int quantity, double sumAfterDiscount, Customer customer) {
-        return 0;
+    public DiscountStrategy getDiscountStrategy() {
+        return discountStrategy;
     }
 }

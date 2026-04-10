@@ -30,21 +30,46 @@ public class Bill {
 
         BillSummary summary = new BillSummary();
 
+        double billTotal = calculateBillTotal();
+
         for (Item item : items) {
 
             double itemSum = getSum(item);
 
-            double[] discountData = getDiscount(item);
-            double discountAmount = discountData[0];
-            double usedBonus = discountData[1];
-            int bonusEarned = (int) discountData[2];
+            double discount = item.getGoods()
+                    .getDiscountStrategy()
+                    .calculateDiscount(
+                            item.getQuantity(),
+                            item.getPrice(),
+                            itemSum,
+                            billTotal
+                    );
 
-            double finalAmount = itemSum - discountAmount - usedBonus;
+            double sumAfterDiscount = itemSum - discount;
+
+            int bonusEarned = item.getGoods()
+                    .getBonusStrategy()
+                    .calculateBonus(
+                            item.getQuantity(),
+                            item.getPrice(),
+                            itemSum,
+                            billTotal
+                    );
+
+            double usedBonus = item.getGoods()
+                    .getBonusStrategy()
+                    .useBonus(
+                            item.getQuantity(),
+                            sumAfterDiscount,
+                            customer
+                    );
+
+            double finalAmount = sumAfterDiscount - usedBonus;
 
             ItemSummary itemSummary = new ItemSummary(
                     item,
                     itemSum,
-                    discountAmount,
+                    discount,
                     usedBonus,
                     finalAmount,
                     bonusEarned
@@ -60,24 +85,13 @@ public class Bill {
         return summary;
     }
 
-    private double getSum(Item item) {
-        return item.getQuantity() * item.getPrice();
+    private double calculateBillTotal() {
+        return items.stream()
+                .mapToDouble(this::getSum)
+                .sum();
     }
 
-    private double[] getDiscount(Item item) {
-        double quantity = item.getQuantity();
-        double price = item.getPrice();
-
-        double[] base = item.getGoods().getBonus((int) quantity, price);
-        double discountAmount = base[0];
-        int bonusEarned = (int) base[1];
-
-        double itemSum = quantity * price;
-        double sumAfterDiscount = itemSum - discountAmount;
-
-        double usedBonus = item.getGoods()
-                .getUsedBonus((int) quantity, sumAfterDiscount, customer);
-
-        return new double[]{discountAmount, usedBonus, bonusEarned};
+    private double getSum(Item item) {
+        return item.getQuantity() * item.getPrice();
     }
 }
